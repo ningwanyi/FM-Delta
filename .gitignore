@@ -1,0 +1,6 @@
+tests/
+build/
+fmd.egg-info/
+dist/
+*.so
+ckpts/

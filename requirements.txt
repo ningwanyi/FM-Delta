@@ -1,0 +1,6 @@
+numpy
+torch
+transformers==4.35.2
+cython==0.29.32
+diffusers==0.25.1
+huggingface_hub==0.20.3

@@ -1,0 +1,4 @@
+include package/include/*.h
+include package/src/*.cpp
+include package/README
+include README.md
