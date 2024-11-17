@@ -14,6 +14,7 @@ cd FM-Delta
 pip install -r requirements.txt
 
 # install fmd package
+cython -3 --fast-fail -v --cplus ./fmd.pyx
 python setup.py install
 
 # check if installing successfully
