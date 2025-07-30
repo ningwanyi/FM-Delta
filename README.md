@@ -65,10 +65,12 @@ python examples/main.py $(echo ${ARGS})
 
 ## Citation
 ```
-@article{ning2024fmdelta,
-  title={FM-Delta: Lossless Compression for Storing Massive Fine-tuned Foundation Models},
-  author={Wanyi Ning, Jingyu Wang, Qi Qi, Mengde Zhu, Haifeng Sun, Daixuan Cheng, Jianxin Liao, Ce Zhang},
-  journal={NeurIPS 2024},
+@article{ning2024fm,
+  title={Fm-delta: Lossless compression for storing massive fine-tuned foundation models},
+  author={Ning, Wanyi and Wang, Jingyu and Qi, Qi and Zhu, Mengde and Sun, Haifeng and Cheng, Daixuan and Liao, Jianxin and Zhang, Ce},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={66796--66825},
   year={2024}
 }
 ```
