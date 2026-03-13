@@ -3,10 +3,6 @@
 
 #include "types.h"
 
-// #define subsize(T,n) n
-// (int)(CHAR_BIT * sizeof(T)*n/32)
-#define subsize(T,n) (CHAR_BIT * sizeof(T) * (n) / 16)
-
 // memory writer for compressed data
 class RCmemencoder : public RCencoder {
 public:

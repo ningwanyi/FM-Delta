@@ -5,17 +5,17 @@
 #define TBLSHIFT 7
 
 RCqsmodel::RCqsmodel(bool compress, uint symbols, uint bits, uint period) : RCmodel(symbols), bits(bits), targetrescale(period)
-{
+{   // bits and period are defaulted to 16 and 0x400 (1024)
   if (bits > 16)
     throw std::domain_error("fmd RCqsmodel bits too large");
   if (period >= (1u << (bits + 1)))
     throw std::domain_error("fmd RCqsmodel period too large");
 
-  uint n = symbols;
-  symf = new uint[n + 1]; 
-  cumf = new uint[n + 1];
+  uint n = symbols;         // number of symbols
+  symf = new uint[n + 1];   // symf[i] is frequency of symbol i
+  cumf = new uint[n + 1];   // cumf[i] is cumulative frequency of symbol i
   cumf[0] = 0;
-  cumf[n] = 1u << bits;
+  cumf[n] = 1u << bits;     // 2^bits is total frequency count
   if (compress) 
     search = 0;
   else {
@@ -36,11 +36,11 @@ RCqsmodel::~RCqsmodel()
 void RCqsmodel::reset()
 {
   uint n = symbols;
-  rescale = (n >> 4) | 2;
+  rescale = (n >> 4) | 2;   // make sure 'rescale' is at least 2
   more = 0;
   uint f = cumf[n] / n;
-  uint m = cumf[n] % n;
-  for (uint i = 0; i < m; i++)
+  uint m = cumf[n] % n;     // for the first m symbols, frequency is f+1; for the rest, frequency is f
+  for (uint i = 0; i < m; i++) 
     symf[i] = f + 1;
   for (uint i = m; i < n; i++)
     symf[i] = f;

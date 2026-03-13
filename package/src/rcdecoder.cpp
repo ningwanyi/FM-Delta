@@ -8,17 +8,6 @@ void RCdecoder::init()
   get(4);
 }
 
-// decode a bit
-bool RCdecoder::decode()
-{
-  range >>= 1;
-  bool s = (code >= low + range);
-  if (s)
-    low += range;
-  normalize();
-  return s;
-}
-
 // decode a symbol using probability modeling
 uint RCdecoder::decode(RCmodel* rm)
 {

@@ -5,83 +5,112 @@
 #include <cstring>
 #include "types.h"
 
-#define bitsizeof(t) ((uint)(CHAR_BIT * sizeof(t)))
-
-template <typename T, uint width = bitsizeof(T), typename U = void>
+template <typename T, typename U = void>
 struct PCmap;
 
 // specialized for integer-to-integer map
-template <typename T, uint width>
-struct PCmap<T, width, void> {
+template <typename T>
+struct PCmap<T, void> {
   typedef T Domain;
   typedef T Range;
-  static const uint bits = width;                    // Range bits
-  static const uint shift = bitsizeof(Range) - bits; // Domain\Range bits
-  Range forward(Domain d) const { return d >> shift; }
-  Domain inverse(Range r) const { return r << shift; }
-  Domain identity(Domain d) const { return inverse(forward(d)); }
+  static const uint bits = CHAR_BIT * sizeof(T);
+  Range forward(Domain d) const { return d; }
+  Domain inverse(Range r) const { return r; }
+  Domain identity(Domain d) const { return d; }
 };
 
 // specialized for float type
-template <uint width>
-struct PCmap<float, width, void> {
+template <>
+struct PCmap<float, void> {
   typedef float  Domain;
   typedef uint32 Range;
-  union Union {
-    Union(Domain d) : d(d) {}
-    Union(Range r) : r(r) {}
-    Domain d;
+  static const uint bits = CHAR_BIT * sizeof(Range);
+  Range fcast(Domain d) const {
     Range r;
-  };
-  static const uint bits = width;                    // Range bits
-  static const uint shift = bitsizeof(Range) - bits; // Domain\Range bits
-  Range fcast(Domain d) const;
-  Domain icast(Range r) const;
-  Range forward(Domain d) const;
-  Domain inverse(Range r) const;
-  Domain identity(Domain d) const;
+    memcpy(&r, &d, sizeof(r));
+    return r;
+  }
+  Domain icast(Range r) const {
+    Domain d;
+    memcpy(&d, &r, sizeof(d));
+    return d;
+  }
+  Range forward(Domain d) const {   // map float to uint32 while preserving order
+    Range r = fcast(d);
+    r = ~r;
+    r ^= -(r >> (bits - 1)) >> 1;
+    return r;
+  }
+  Domain inverse(Range r) const {   // inverse of forward mapping
+    r ^= -(r >> (bits - 1)) >> 1;
+    r = ~r;
+    return icast(r);
+  }
+  Domain identity(Domain d) const { return d; }
 };
 
 // specialized for double type
-template <uint width>
-struct PCmap<double, width, void> {
+template <>
+struct PCmap<double, void> {
   typedef double Domain;
   typedef uint64 Range;
-  union Union {
-    Union(Domain d) : d(d) {}
-    Union(Range r) : r(r) {}
-    Domain d;
+  static const uint bits = CHAR_BIT * sizeof(Range);
+  Range fcast(Domain d) const {
     Range r;
-  };
-  static const uint bits = width;                    // Range bits
-  static const uint shift = bitsizeof(Range) - bits; // Domain\Range bits
-  Range fcast(Domain d) const;
-  Domain icast(Range r) const;
-  Range forward(Domain d) const;
-  Domain inverse(Range r) const;
-  Domain identity(Domain d) const;
+    memcpy(&r, &d, sizeof(r));
+    return r;
+  }
+  Domain icast(Range r) const {
+    Domain d;
+    memcpy(&d, &r, sizeof(d));
+    return d;
+  }
+  Range forward(Domain d) const {
+    Range r = fcast(d);
+    r = ~r;
+    r ^= -(r >> (bits - 1)) >> 1;
+    return r;
+  }
+  Domain inverse(Range r) const {
+    r ^= -(r >> (bits - 1)) >> 1;
+    r = ~r;
+    return icast(r);
+  }
+  Domain identity(Domain d) const { return d; }
 };
 
 // specialized for short type
-template <uint width>
-struct PCmap<short, width, void> {
-  typedef short Domain;
+template <>
+struct PCmap<short, void> {
+  typedef short  Domain;
   typedef uint16 Range;
-  union Union {
-    Union(Domain d) : d(d) {}
-    Union(Range r) : r(r) {}
-    Domain d;
+  static const uint bits = CHAR_BIT * sizeof(Range);
+  Range fcast(Domain d) const {
     Range r;
-  };
-  static const uint bits = width;                    // Range bits
-  static const uint shift = bitsizeof(Range) - bits; // Domain\Range bits
-  Range fcast(Domain d) const;
-  Domain icast(Range r) const;
-  Range forward(Domain d) const;
-  Domain inverse(Range r) const;
-  Domain identity(Domain d) const;
+    memcpy(&r, &d, sizeof(r));
+    return r;
+  }
+  Domain icast(Range r) const {
+    Domain d;
+    memcpy(&d, &r, sizeof(d));
+    return d;
+  }
+  Range forward(Domain d) const {
+    Range r = fcast(d);
+    r = ~r;
+    Range move = -(r >> (bits - 1));
+    move >>= 1;
+    r ^= move;
+    return r;
+  }
+  Domain inverse(Range r) const {
+    Range move = -(r >> (bits - 1));
+    move >>= 1;
+    r ^= move;
+    r = ~r;
+    return icast(r);
+  }
+  Domain identity(Domain d) const { return d; }
 };
-
-#include "pcmap.inl"
 
 #endif

@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include "pcdecoder.h"
 #include "rcqsmodel.h"
-#include "front.h"
 #include "fmd.h"
 #include "read.h"
 
@@ -35,33 +34,21 @@ decompress3d(
 )
 {
   // initialize decompressor
-  typedef PCmap<T, bits> Map;
+  typedef PCmap<T> Map;
   RCmodel* rm = new RCqsmodel(false, PCdecoder<T, Map>::symbols);
-  PCdecoder<T, Map>* fd = new PCdecoder<T, Map>(rd, &rm);
-  Front<T> f(nx, ny);
+  PCdecoder<T, Map>* fd = new PCdecoder<T, Map>(rd, rm);
 
   // decode difference between predicted (p) and actual (a) value
   uint x, y, z;
-  for (z = 0, f.advance(0, 0, 1); z < nz; z++)
-    for (y = 0, f.advance(0, 1, 0); y < ny; y++)
-      for (x = 0, f.advance(1, 0, 0); x < nx; x++) {
-        // volatile 
-        T p = *base_data++;
-        T a = fd->decode(p);
-        *data++ = a;
-        f.push(a);
-      }
+  for (z = 0; z < nz; z++)
+    for (y = 0; y < ny; y++)
+      for (x = 0; x < nx; x++)
+        *data++ = fd->decode(*base_data++);
 
   delete fd;
   delete rm;
 }
 
-
-// decompress p-bit float, 2p-bit double
-#define decompress_case(p)\
-  case subsize(T, p):\
-    decompress3d<T, subsize(T, p)>(stream->rd, data, base_data, stream->nx, stream->ny, stream->nz);\
-    break
 
 // decompress 4D array
 template <typename T>
@@ -72,28 +59,18 @@ decompress4d(
   T*        base_data
 )
 {
+  const uint bits = CHAR_BIT * sizeof(T);
   // decompress one field at a time
   for (int i = 0; i < stream->nf; i++) {
-    int bits = (int)(CHAR_BIT * sizeof(T));
-    switch (bits){
-      decompress_case( 2);
-      decompress_case( 3);
-      decompress_case( 4);
-      decompress_case( 5);
-      decompress_case( 6);
-      decompress_case( 7);
-      decompress_case( 8);
-      decompress_case( 9);
-      decompress_case(10);
-      decompress_case(11);
-      decompress_case(12);
-      decompress_case(13);
-      decompress_case(14);
-      decompress_case(15);
-      decompress_case(16);
-      default:
-        fmd_errno = fmdErrorBadPrecision;
-        return false;
+    if (bits == 16)
+      decompress3d<T, 16>(stream->rd, data, base_data, stream->nx, stream->ny, stream->nz);
+    else if (bits == 32)
+      decompress3d<T, 32>(stream->rd, data, base_data, stream->nx, stream->ny, stream->nz);
+    else if (bits == 64)
+      decompress3d<T, 64>(stream->rd, data, base_data, stream->nx, stream->ny, stream->nz);
+    else {
+      fmd_errno = fmdErrorBadPrecision;
+      return false;
     }
     data += stream->nx * stream->ny * stream->nz;
     base_data += stream->nx * stream->ny * stream->nz;

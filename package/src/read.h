@@ -3,9 +3,6 @@
 
 #include "types.h"
 
-// #define subsize(T,n) n
-#define subsize(T,n) (CHAR_BIT * sizeof(T) * (n) / 16)
-
 class RCmemdecoder : public RCdecoder {
 public:
   RCmemdecoder(const void* buffer) : RCdecoder(), ptr((const uchar*)buffer), begin(ptr) {}

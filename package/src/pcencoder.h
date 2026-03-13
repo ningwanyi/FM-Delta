@@ -6,16 +6,17 @@
 #include "rcencoder.h"
 #include "rcmodel.h"
 
-template <typename T, class M = PCmap<T>, bool wide = (M::bits > 8)>
+template <typename T, class M = PCmap<T>>
 class PCencoder {
 public:
-  PCencoder(RCencoder* re, RCmodel*const* rm);
-
-  // encode a value with prediction and optional context
-  T encode(T real, T pred, uint context = 0);
-
-  // number of symbols (needed by probability modeler)
-  static const uint symbols;
+  PCencoder(RCencoder* re, RCmodel* rm) : re(re), rm(rm) {}
+  void encode(T base, T finetuned);
+  static const uint symbols = 2 * M::bits + 1;
+private:
+  static const uint bias = M::bits;
+  M                 map;
+  RCencoder*const   re;
+  RCmodel*          rm;
 };
 
 template <typename U> uint bsr(U x);

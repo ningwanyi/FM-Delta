@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include "pcencoder.h"
 #include "rcqsmodel.h"
-#include "front.h"
 #include "fmd.h"
 #include "write.h"
 
@@ -35,32 +34,20 @@ compress3d(
 )
 {
   // initialize compressor
-  typedef PCmap<T, bits> Map;
-  RCmodel* rm = new RCqsmodel(true, PCencoder<T, Map>::symbols);  
-  PCencoder<T, Map>* fe = new PCencoder<T, Map>(re, &rm); 
-  Front<T> f(nx, ny);
+  typedef PCmap<T> Map;
+  RCmodel* rm = new RCqsmodel(true, PCencoder<T, Map>::symbols);
+  PCencoder<T, Map>* fe = new PCencoder<T, Map>(re, rm);
 
   //encode difference between base and finetuned value
   uint x, y, z;
-  // uint d;
-  for (z = 0, f.advance(0, 0, 1); z < nz; z++)
-    for (y = 0, f.advance(0, 1, 0); y < ny; y++)
-      for (x = 0, f.advance(1, 0, 0); x < nx; x++) {
-        T base = *base_data++;
-        T finetuned = *finetuned_data++;
-        finetuned = fe->encode(base,finetuned);
-        f.push(finetuned);
-      }
+  for (z = 0; z < nz; z++)
+    for (y = 0; y < ny; y++)
+      for (x = 0; x < nx; x++)
+        fe->encode(*base_data++, *finetuned_data++);
 
   delete fe;
   delete rm;
 }
-
-// compress p-bit float, 2p-bit double
-#define compress_case(p)\
-  case subsize(T, p):\
-    compress3d<T, subsize(T, p)>(stream->re, base_data, finetuned_data, stream->nx, stream->ny, stream->nz);\
-    break
 
 // compress 4D array
 template <typename T>
@@ -71,28 +58,18 @@ compress4d(
   const T*   finetuned_data
 )
 {
+  const uint bits = CHAR_BIT * sizeof(T);
   // compress one field at a time
   for (int i = 0; i < stream->nf; i++) {
-    int bits = (int)(CHAR_BIT * sizeof(T));
-    switch (bits) {
-      compress_case( 2);
-      compress_case( 3);
-      compress_case( 4);
-      compress_case( 5);
-      compress_case( 6);
-      compress_case( 7);
-      compress_case( 8);
-      compress_case( 9);
-      compress_case(10);
-      compress_case(11);
-      compress_case(12);
-      compress_case(13);
-      compress_case(14);
-      compress_case(15);
-      compress_case(16);
-      default:
-        fmd_errno = fmdErrorBadPrecision;
-        return false;
+    if (bits == 16)
+      compress3d<T, 16>(stream->re, base_data, finetuned_data, stream->nx, stream->ny, stream->nz);
+    else if (bits == 32)
+      compress3d<T, 32>(stream->re, base_data, finetuned_data, stream->nx, stream->ny, stream->nz);
+    else if (bits == 64)
+      compress3d<T, 64>(stream->re, base_data, finetuned_data, stream->nx, stream->ny, stream->nz);
+    else {
+      fmd_errno = fmdErrorBadPrecision;
+      return false;
     }
     base_data += stream->nx * stream->ny * stream->nz;
     finetuned_data += stream->nx * stream->ny * stream->nz;

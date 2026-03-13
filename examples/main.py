@@ -64,9 +64,9 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Fine-tuned model compression.')
     parser.add_argument('--compressor', type=str, default='fmd', metavar='S',
                         help='option: [lzma, bz2, gzip, zlib, fpzip, fmd]')
-    parser.add_argument('--base-model', type=str, default='bert-large-uncased', metavar='S',
+    parser.add_argument('--base-model', type=str, default='gpt2', metavar='S',
                         help='pretrained model name')
-    parser.add_argument('--finetuned-model', type=str, default='Jorgeutd/bert-large-uncased-finetuned-ner', metavar='S',
+    parser.add_argument('--finetuned-model', type=str, default='rajkumarrrk/gpt2-fine-tuned-on-imdb-positive-reviews', metavar='S',
                         help='finetuned model name')
     parser.add_argument('--dtype', type=str, default='fp32', metavar='S',
                         help='finetuned model name')

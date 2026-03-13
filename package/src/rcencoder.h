@@ -13,16 +13,9 @@ public:
   // finish encoding
   void finish();
 
-  // encode a bit s
-  void encode(bool s);
-
   // encode a number s : 0 <= s < 2^n
   template <typename UINT>
   void encode(UINT s, uint n);
-
-  // encode a number s : l <= s < h
-  template <typename UINT>
-  void encode(UINT s, UINT l, UINT h);
 
   // encode a symbol s using probability modeling
   void encode(uint s, RCmodel* rm);

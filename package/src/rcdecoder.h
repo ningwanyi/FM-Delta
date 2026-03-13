@@ -12,16 +12,9 @@ public:
   // initialize decoding
   void init();
 
-  // decode a bit
-  bool decode();
-
   // decode a number s : 0 <= s < 2^n
   template <typename UINT>
   UINT decode(uint n);
-
-  // decode a number s : l <= s < h
-  template <typename UINT>
-  UINT decode(UINT l, UINT h);
 
   // decode a symbol using probability modeling
   uint decode(RCmodel* rm);

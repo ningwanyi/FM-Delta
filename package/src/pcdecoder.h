@@ -6,17 +6,18 @@
 #include "rcdecoder.h"
 #include "rcmodel.h"
 
-template <typename T, class M = PCmap<T>, bool wide = (M::bits > 8)>
+template <typename T, class M = PCmap<T>>
 class PCdecoder {
 public:
-  PCdecoder(RCdecoder* rd, RCmodel*const* rm);
-  ~PCdecoder();
-
-  // decode a value with prediction and optional context
-  T decode(T pred, uint context = 0);
-
-  // number of symbols (needed by probability modeler)
-  static const uint symbols;
+  PCdecoder(RCdecoder* rd, RCmodel* rm) : rd(rd), rm(rm) {}
+  ~PCdecoder() {}
+  T decode(T pred);
+  static const uint symbols = 2 * M::bits + 1;
+private:
+  static const uint bias = M::bits;
+  M                 map;
+  RCdecoder*const   rd;
+  RCmodel*          rm;
 };
 
 #include "pcdecoder.inl"

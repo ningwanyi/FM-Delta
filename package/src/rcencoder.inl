@@ -15,26 +15,11 @@ inline void RCencoder::encode(UINT s, uint n)
   encode_shift(static_cast<uint>(s), n);
 }
 
-template <typename UINT>
-inline void RCencoder::encode(UINT s, UINT l, UINT h)
-{
-  s -= l;
-  h -= l;
-  for (uint i = 1; i < (uint)sizeof(s) / 2; i++)
-    if ((h >> 16)) {
-      encode_shift(s & 0xffff, 16);
-      s >>= 16;
-      h >>= 16;
-      h++;
-    }
-  encode_ratio(s, h);
-}
-
 // output n bytes
 inline void RCencoder::put(uint n)
 {
   for (uint i = 0; i < n; i++) {
-    putbyte(low >> 24);
+    putbyte(low >> 24); // output the top 8 bits of low
     low <<= 8;
   }
 }

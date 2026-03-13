@@ -4,17 +4,8 @@
 // finalize encoder
 void RCencoder::finish()
 {
-  put(4);
-  flush();
-}
-
-// encode a bit s
-void RCencoder::encode(bool s)
-{
-  range >>= 1;
-  if (s)
-    low += range;
-  normalize();
+  put(4); // output the last 4 bytes of low
+  flush(); 
 }
 
 // encode a symbol s using probability modeling
@@ -29,10 +20,10 @@ void RCencoder::encode(uint s, RCmodel* rm)
 }
 
 // encode a number s : 0 <= s < 2^n <= 2^16
-void RCencoder::encode_shift(uint s, uint n)
+void RCencoder::encode_shift(uint s, uint n)  // n is bits width
 {
-  range >>= n;
-  low += range * s;
+  range >>= n;  // equal to range /= 2^n
+  low += range * s; // [low, low+range) is the interval for symbol s
   normalize();
 }
 
@@ -47,15 +38,15 @@ void RCencoder::encode_ratio(uint s, uint n)
 // normalize the range and output data
 void RCencoder::normalize()
 {
-  while (!((low ^ (low + range)) >> 24)) {
+  while (!((low ^ (low + range)) >> 24)) {  // if the top 8 bits are the same, output them
     // top 8 bits are fixed; output them
-    put(1);
-    range <<= 8;
+    put(1); // output the top 8 bits of low
+    range <<= 8;  // expand range
   }
-  if (!(range >> 16)) {
+  if (!(range >> 16)) { 
     // top 8 bits are not fixed but range is small;
     // fudge range to avoid carry and output 16 bits
-    put(2);
-    range = -low;
+    put(2); // output the top 16 bits of low
+    range = -low; // set range to complement of low. expand range
   }
 }
