@@ -31,16 +31,6 @@ uint RCdecoder::decode_shift(uint n)
   return s;
 }
 
-// decode a number s : 0 <= s < n <= 2^16
-uint RCdecoder::decode_ratio(uint n)
-{
-  range /= n;
-  uint s = (code - low) / range;
-  low += range * s;
-  normalize();
-  return s;
-}
-
 // normalize the range and input data
 void RCdecoder::normalize()
 {

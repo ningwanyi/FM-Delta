@@ -33,7 +33,6 @@ public:
 
 private:
   void encode_shift(uint s, uint n);
-  void encode_ratio(uint s, uint n);
   void put(uint n);
   void normalize();
 

@@ -12,8 +12,8 @@ void RCencoder::finish()
 void RCencoder::encode(uint s, RCmodel* rm)
 {
   uint l, r;
-  rm->encode(s, l, r);
-  rm->normalize(range);
+  rm->encode(s, l, r);    // get symbol frequency l and r from model. Update probability table
+  rm->normalize(range);  
   low += range * l;
   range *= r;
   normalize();
@@ -23,15 +23,7 @@ void RCencoder::encode(uint s, RCmodel* rm)
 void RCencoder::encode_shift(uint s, uint n)  // n is bits width
 {
   range >>= n;  // equal to range /= 2^n
-  low += range * s; // [low, low+range) is the interval for symbol s
-  normalize();
-}
-
-// encode a number s : 0 <= s < n <= 2^16
-void RCencoder::encode_ratio(uint s, uint n)
-{
-  range /= n;
-  low += range * s;
+  low += range * s; 
   normalize();
 }
 

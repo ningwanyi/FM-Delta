@@ -93,8 +93,8 @@ void RCqsmodel::update()
     uint sf = symf[i];
     cf -= sf;
     cumf[i] = cf;
-    sf = (sf >> 1) | 1;
-    count -= sf;
+    sf = (sf >> 1) | 1;   // periodic rescaling (reduce all frequencies by half)
+    count -= sf;          // count < cumf[n]，'count' is the difference between target cumf[n] and sum of symf, waiting for allocation
     symf[i] = sf;
   }
   // assert(cf == 0);

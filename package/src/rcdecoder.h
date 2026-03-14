@@ -29,7 +29,6 @@ public:
 
 private:
   uint decode_shift(uint n);
-  uint decode_ratio(uint n);
   void get(uint n);
   void normalize();
 
